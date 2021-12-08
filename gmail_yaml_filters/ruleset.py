@@ -10,6 +10,7 @@ from datetime import datetime
 from itertools import chain
 from lxml import etree
 from operator import attrgetter
+from zlib import crc32
 import six
 
 # avoid breaking when py38 is released
@@ -604,7 +605,7 @@ def ruleset_to_etree(ruleset):
         entry = etree.SubElement(xml, 'entry')
         etree.SubElement(entry, 'category', term='filter')
         etree.SubElement(entry, 'title').text = 'Mail Filter'
-        etree.SubElement(entry, 'id').text = 'tag:mail.google.com,2008:filter:{0}'.format(abs(hash(rule)))
+        etree.SubElement(entry, 'id').text = 'tag:mail.google.com,2008:filter:{0}'.format(crc32(bytes(repr(rule), "UTF-8")))
         etree.SubElement(entry, 'updated').text = datetime.now().replace(microsecond=0).isoformat() + 'Z'
         etree.SubElement(entry, 'content')
         for construct in sorted(six.itervalues(rule.flatten()), key=attrgetter('key')):
