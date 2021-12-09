@@ -35,8 +35,15 @@ yaml.Loader.add_constructor('tag:yaml.org,2002:str', construct_yaml_str)
 yaml.SafeLoader.add_constructor('tag:yaml.org,2002:str', construct_yaml_str)
 
 
-def ruleset_to_xml(ruleset, pretty_print=True, encoding='utf8'):
-    dom = ruleset_to_etree(ruleset)
+def source_date_epoch():
+    try:
+        return int(os.environ["SOURCE_DATE_EPOCH"])
+    except KeyError:
+        return None
+
+
+def ruleset_to_xml(ruleset, pretty_print=True, encoding='utf8', epoch=None):
+    dom = ruleset_to_etree(ruleset, epoch=epoch)
     chars = etree.tostring(
         dom,
         encoding=encoding,
@@ -91,7 +98,7 @@ def main():
         args.client_secret = default_client_secret
 
     if args.action == 'xml':
-        print(ruleset_to_xml(ruleset))
+        print(ruleset_to_xml(ruleset, epoch=source_date_epoch()))
         return
 
     # every command below this point involves the Gmail API

@@ -593,7 +593,13 @@ class RuleSet(object):
         return ruleset
 
 
-def ruleset_to_etree(ruleset):
+def rule_date(epoch):
+    if epoch is not None:
+        return datetime.utcfromtimestamp(epoch)
+    return datetime.now()
+
+
+def ruleset_to_etree(ruleset, epoch=None):
     xml = etree.Element('feed', nsmap={
         None: 'http://www.w3.org/2005/Atom',
         'apps': 'http://schemas.google.com/apps/2006',
@@ -606,7 +612,7 @@ def ruleset_to_etree(ruleset):
         etree.SubElement(entry, 'category', term='filter')
         etree.SubElement(entry, 'title').text = 'Mail Filter'
         etree.SubElement(entry, 'id').text = 'tag:mail.google.com,2008:filter:{0}'.format(crc32(bytes(repr(rule), "UTF-8")))
-        etree.SubElement(entry, 'updated').text = datetime.now().replace(microsecond=0).isoformat() + 'Z'
+        etree.SubElement(entry, 'updated').text = rule_date(epoch).replace(microsecond=0).isoformat() + 'Z'
         etree.SubElement(entry, 'content')
         for construct in sorted(six.itervalues(rule.flatten()), key=attrgetter('key')):
             etree.SubElement(
